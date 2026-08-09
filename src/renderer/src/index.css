@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #0a0a0f;
+  color: #e2e8f0;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.xterm {
+  height: 100%;
+  padding: 12px;
+}
+
+/* Fix: textarea must be fixed-position so overflow:hidden on parents doesn't clip it.
+   xterm places it at left:-9999em; if any ancestor has overflow:hidden that element
+   gets clipped and can't receive keyboard events. */
+.xterm-helper-textarea {
+  position: fixed !important;
+}
+
+.xterm-viewport {
+  overflow-y: auto !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e1e2a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a3a;
+}

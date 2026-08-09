@@ -1,0 +1,25 @@
+appId: dev.edith.app
+productName: E.D.I.T.H.
+directories:
+  buildResources: resources
+  output: dist
+files:
+  - out/**/*
+  - '!**/*.map'
+npmRebuild: true
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
