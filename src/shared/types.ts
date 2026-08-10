@@ -1,4 +1,5 @@
 export type Profile = 'work' | 'personal'
+export type SessionActivity = 'idle' | 'working' | 'done'
 
 export interface Session {
   id: string

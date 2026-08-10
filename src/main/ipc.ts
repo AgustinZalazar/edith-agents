@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { createTerminal, writeToTerminal, resizeTerminal, closeTerminal } from './terminal'
 import * as store from './store'
+import { getUsage } from './usage'
 import type { Profile, Session } from '../shared/types'
 
 export function setupIPC(win: BrowserWindow): void {
@@ -24,6 +25,10 @@ export function setupIPC(win: BrowserWindow): void {
 
   ipcMain.handle('profile:get', () => store.getProfile())
   ipcMain.handle('profile:set', (_, profile: Profile) => store.setProfile(profile))
+  ipcMain.handle('profile:stats', (_, profile: Profile) => store.getProfileStats(profile))
+  ipcMain.handle('usage:get', (_, { profile, sessionId }: { profile: Profile; sessionId: string }) =>
+    getUsage(profile, sessionId),
+  )
 
   ipcMain.handle('session:list', () => store.getSessions())
   ipcMain.handle(

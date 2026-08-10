@@ -29,6 +29,8 @@ const edith = {
   profile: {
     get: (): Promise<Profile | null> => ipcRenderer.invoke('profile:get'),
     set: (profile: Profile): Promise<void> => ipcRenderer.invoke('profile:set', profile),
+    stats: (profile: Profile): Promise<{ mcps: number; skills: number }> =>
+      ipcRenderer.invoke('profile:stats', profile),
   },
   session: {
     list: (): Promise<Session[]> => ipcRenderer.invoke('session:list'),
@@ -37,6 +39,19 @@ const edith = {
     delete: (id: string): Promise<void> => ipcRenderer.invoke('session:delete', { id }),
     update: (id: string, updates: Partial<Session>): Promise<void> =>
       ipcRenderer.invoke('session:update', { id, updates }),
+  },
+  usage: {
+    get: (
+      profile: Profile,
+      sessionId: string,
+    ): Promise<{ session: number; weekly: number; dailyLimit: number; creditsPct: number | null; creditsUpdatedAt: number | null }> =>
+      ipcRenderer.invoke('usage:get', { profile, sessionId }),
+    onCreditsUpdated: (cb: (profile: Profile, pct: number) => void) => {
+      const handler = (_: Electron.IpcRendererEvent, data: { profile: Profile; pct: number }) =>
+        cb(data.profile, data.pct)
+      ipcRenderer.on('usage:credits-updated', handler)
+      return () => ipcRenderer.removeListener('usage:credits-updated', handler)
+    },
   },
   worktree: {
     list: (): Promise<Worktree[]> => ipcRenderer.invoke('worktree:list'),

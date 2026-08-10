@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import type { Profile, Session, Worktree } from '../../shared/types'
+import { useState, useEffect, useCallback } from 'react'
+import type { Profile, Session, SessionActivity, Worktree } from '../../shared/types'
 import ProfileSelector from './components/Startup/ProfileSelector'
 import Sidebar from './components/Sidebar/Sidebar'
 import TerminalPane from './components/Terminal/TerminalPane'
@@ -10,6 +10,7 @@ export default function App() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [worktrees, setWorktrees] = useState<Worktree[]>([])
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+  const [sessionActivity, setSessionActivity] = useState<Record<string, SessionActivity>>({})
 
   useEffect(() => {
     async function init() {
@@ -53,6 +54,15 @@ export default function App() {
     setActiveSessionId(session.id)
   }
 
+  const handleActivityChange = useCallback((id: string, activity: SessionActivity) => {
+    setSessionActivity((prev) => ({ ...prev, [id]: activity }))
+  }, [])
+
+  const handleRenameSession = async (id: string, name: string) => {
+    await window.edith.session.update(id, { name })
+    setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, name } : s)))
+  }
+
   const handleDeleteSession = async (id: string) => {
     await window.edith.session.delete(id)
     setSessions((prev) => prev.filter((s) => s.id !== id))
@@ -91,19 +101,16 @@ export default function App() {
         worktrees={profileWorktrees}
         activeSessionId={activeSessionId}
         onSessionSelect={setActiveSessionId}
+        sessionActivity={sessionActivity}
         onNewSession={handleNewSession}
         onDeleteSession={handleDeleteSession}
+        onRenameSession={handleRenameSession}
         onSwitchProfile={handleSwitchProfile}
       />
-      <main className="flex-1 overflow-hidden bg-[#0a0a0f]">
-        {activeSession ? (
-          <TerminalPane
-            key={activeSession.id}
-            sessionId={activeSession.id}
-            cwd={activeSession.worktreePath}
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full gap-4">
+      <main className="flex-1 overflow-hidden bg-[#0a0a0f] relative">
+        {/* Empty state — only when no sessions exist */}
+        {profileSessions.length === 0 && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
             <p className="text-[#64748b] text-sm tracking-widest">NO ACTIVE SESSION</p>
             <button
               onClick={handleNewSession}
@@ -113,6 +120,27 @@ export default function App() {
             </button>
           </div>
         )}
+
+        {/* All terminals rendered simultaneously; only active one is visible.
+            visibility:hidden keeps xterm mounted with correct dimensions. */}
+        {profileSessions.map((session) => (
+          <div
+            key={session.id}
+            className="absolute inset-0"
+            style={
+              session.id === activeSessionId
+                ? {}
+                : { visibility: 'hidden', pointerEvents: 'none' }
+            }
+          >
+            <TerminalPane
+              sessionId={session.id}
+              cwd={session.worktreePath}
+              isActive={session.id === activeSessionId}
+              onActivityChange={handleActivityChange}
+            />
+          </div>
+        ))}
       </main>
     </div>
   )

@@ -1,6 +1,6 @@
 import { app } from 'electron'
 import { join } from 'path'
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs'
 import { randomUUID } from 'crypto'
 import type { Session, Worktree, Profile, StoreData } from '../shared/types'
 
@@ -86,4 +86,24 @@ export const createWorktree = (
 export const deleteWorktree = (id: string): void => {
   const data = read()
   write({ ...data, worktrees: data.worktrees.filter((w) => w.id !== id) })
+}
+
+export const getProfileStats = (profile: Profile): { mcps: number; skills: number } => {
+  const claudeDir = join(DATA_DIR, `claude-${profile}`)
+  let mcps = 0
+  let skills = 0
+
+  try {
+    const settings = JSON.parse(readFileSync(join(claudeDir, 'settings.json'), 'utf8'))
+    mcps = Object.keys(settings.mcpServers ?? {}).length
+  } catch {}
+
+  try {
+    const agentsDir = join(claudeDir, 'agents')
+    if (existsSync(agentsDir)) {
+      skills = readdirSync(agentsDir).filter((f) => f.endsWith('.md')).length
+    }
+  } catch {}
+
+  return { mcps, skills }
 }
