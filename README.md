@@ -9,6 +9,7 @@ A desktop GUI that acts as an **agent harness** for [Claude Code CLI](https://cl
 ## What it does
 
 - **Work / Personal profiles** — two fully isolated Claude accounts, each with separate credentials, MCP servers, agents, and skills
+- **Engram memory** — optional local memory MCP server ([Engram](https://github.com/Gentleman-Programming/engram)) per profile, isolated SQLite databases
 - **Session management** — create, switch, and delete sessions; each session is a persistent terminal running Claude Code
 - **Worktree support** — attach sessions to specific git worktrees
 - **Embedded terminal** — full xterm.js terminal per session, auto-launches `claude` on open
@@ -41,6 +42,7 @@ Session and worktree metadata is persisted as JSON in the Electron app's `userDa
 ## Requirements
 
 - [Claude Code CLI](https://claude.ai/code) installed and accessible as `claude` in PATH
+- [Engram](https://github.com/Gentleman-Programming/engram) (optional) — local memory MCP server; install via `go install github.com/Gentleman-Programming/engram/cmd/engram@latest` or a prebuilt binary
 - **Windows**: [Visual Studio Build Tools 2022](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with C++ workload (required to compile `node-pty`)
 - Node.js 20+
 

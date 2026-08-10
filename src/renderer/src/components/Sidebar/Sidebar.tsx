@@ -27,6 +27,8 @@ export default function Sidebar({
   onSwitchProfile,
 }: Props) {
   const [stats, setStats] = useState({ mcps: 0, skills: 0 })
+  const [engram, setEngram] = useState<{ installed: boolean; configured: boolean } | null>(null)
+  const [engramLoading, setEngramLoading] = useState(false)
   const [usage, setUsage] = useState({
     session: 0,
     weekly: 0,
@@ -45,6 +47,19 @@ export default function Sidebar({
     )
     return () => clearInterval(interval)
   }, [profile])
+
+  useEffect(() => {
+    window.edith.engram.status(profile).then(setEngram)
+  }, [profile])
+
+  const handleEngramSetup = async () => {
+    setEngramLoading(true)
+    const result = await window.edith.engram.setup(profile)
+    if (result.ok) {
+      window.edith.engram.status(profile).then(setEngram)
+    }
+    setEngramLoading(false)
+  }
 
   useEffect(() => {
     if (!activeSessionId) return
@@ -297,6 +312,37 @@ export default function Sidebar({
             <span className={`text-sm font-bold tabular-nums ${accentText}`}>{stats.skills}</span>
             <span className="text-[#334155] text-[9px] tracking-[0.15em]">SKILLS</span>
           </div>
+        </div>
+
+        {/* Engram memory status */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                engram?.configured
+                  ? `${activeDot}`
+                  : engram?.installed
+                    ? 'bg-amber-400'
+                    : 'bg-[#1e1e2a]'
+              }`}
+            />
+            <span className="text-[#334155] text-[9px] tracking-[0.15em]">ENGRAM</span>
+          </div>
+          {engram !== null && (
+            engram.configured ? (
+              <span className={`text-[9px] ${accentText}`}>ACTIVE</span>
+            ) : engram.installed ? (
+              <button
+                onClick={handleEngramSetup}
+                disabled={engramLoading}
+                className="text-[9px] tracking-widest text-amber-400 hover:text-amber-300 disabled:opacity-40 transition-colors"
+              >
+                {engramLoading ? '···' : 'SETUP'}
+              </button>
+            ) : (
+              <span className="text-[#1e1e2a] text-[9px]">not found</span>
+            )
+          )}
         </div>
 
         <p className="text-[#1e1e2a] text-[10px] tracking-widest text-center">AGENT HARNESS v0.1</p>

@@ -53,6 +53,12 @@ const edith = {
       return () => ipcRenderer.removeListener('usage:credits-updated', handler)
     },
   },
+  engram: {
+    status: (profile: Profile): Promise<{ installed: boolean; configured: boolean }> =>
+      ipcRenderer.invoke('engram:status', profile),
+    setup: (profile: Profile): Promise<{ ok: boolean; error?: string }> =>
+      ipcRenderer.invoke('engram:setup', profile),
+  },
   worktree: {
     list: (): Promise<Worktree[]> => ipcRenderer.invoke('worktree:list'),
     create: (name: string, path: string, branch: string, profile: Profile): Promise<Worktree> =>

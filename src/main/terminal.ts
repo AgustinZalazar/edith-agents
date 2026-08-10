@@ -4,6 +4,7 @@ import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
 import type { Profile } from '../shared/types'
 import { addTokens, clearSession, parseTokens, setCredits } from './usage'
+import { engramDataDir } from './engram'
 
 const DEFAULT_SHELL = process.platform === 'win32' ? 'powershell.exe' : 'bash'
 const DEFAULT_CWD =
@@ -31,6 +32,7 @@ export function createTerminal(
   const env: Record<string, string> = {
     ...(process.env as Record<string, string>),
     CLAUDE_CONFIG_DIR: claudeConfigDir,
+    ENGRAM_DATA_DIR: engramDataDir(profile),
   }
 
   const ptyProcess = pty.spawn(DEFAULT_SHELL, [], {

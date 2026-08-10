@@ -2,6 +2,7 @@ import { ipcMain, BrowserWindow } from 'electron'
 import { createTerminal, writeToTerminal, resizeTerminal, closeTerminal } from './terminal'
 import * as store from './store'
 import { getUsage } from './usage'
+import { isEngramInstalled, isEngramConfigured, setupEngram } from './engram'
 import type { Profile, Session } from '../shared/types'
 
 export function setupIPC(win: BrowserWindow): void {
@@ -42,6 +43,16 @@ export function setupIPC(win: BrowserWindow): void {
     (_, { id, updates }: { id: string; updates: Partial<Session> }) =>
       store.updateSession(id, updates),
   )
+
+  ipcMain.handle('engram:status', async (_, profile: Profile) => {
+    const [installed, configured] = await Promise.all([
+      isEngramInstalled(),
+      Promise.resolve(isEngramConfigured(profile)),
+    ])
+    return { installed, configured }
+  })
+
+  ipcMain.handle('engram:setup', (_, profile: Profile) => setupEngram(profile))
 
   ipcMain.handle('worktree:list', () => store.getWorktrees())
   ipcMain.handle(
