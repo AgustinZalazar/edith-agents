@@ -1,7 +1,5 @@
 # E.D.I.T.H.
 
-> *Even Dead I'm The Hero* — Spider-Man reference
-
 A desktop GUI that acts as an **agent harness** for [Claude Code CLI](https://claude.ai/code). Instead of managing multiple terminal windows, E.D.I.T.H. wraps Claude Code in a clean interface with session management, worktree support, and isolated per-profile accounts.
 
 ![Electron](https://img.shields.io/badge/Electron-31-47848F?logo=electron)
