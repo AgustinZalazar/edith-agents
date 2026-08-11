@@ -29,6 +29,7 @@ export default function Sidebar({
   const [stats, setStats] = useState({ mcps: 0, skills: 0 })
   const [engram, setEngram] = useState<{ installed: boolean; configured: boolean } | null>(null)
   const [engramLoading, setEngramLoading] = useState(false)
+  const [engramError, setEngramError] = useState<string | null>(null)
   const [usage, setUsage] = useState({
     session: 0,
     weekly: 0,
@@ -54,9 +55,12 @@ export default function Sidebar({
 
   const handleEngramSetup = async () => {
     setEngramLoading(true)
+    setEngramError(null)
     const result = await window.edith.engram.setup(profile)
     if (result.ok) {
       window.edith.engram.status(profile).then(setEngram)
+    } else {
+      setEngramError(result.error ?? 'unknown error')
     }
     setEngramLoading(false)
   }
@@ -315,6 +319,9 @@ export default function Sidebar({
         </div>
 
         {/* Engram memory status */}
+        {engramError && (
+          <p className="text-red-400 text-[8px] break-all leading-tight">{engramError}</p>
+        )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <span
